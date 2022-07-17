@@ -6,11 +6,39 @@
 
 # ## Part 1
 # 
-# Extracting Balance Sheet, from Moneycontrol. Now moneycontrol is pesky, it does not allow me to save data in csv format,
+# Extracting Balance Sheet from Moneycontrol and OHLC (open, high, low, close data) from Yahoo! Finance. Now moneycontrol is pesky, it does not allow me to save data in csv format,
 # and because I am a lifelong linux enthusiast, I will rather die before using MS Excel. So Let me spin up a selenium
-# instance. Or maybe try beautifulsoup.
+# instance. Or maybe try beautifulsoup. 
+# 
+# 
+# Life Update: I had to use selenium and bit of arm twisting to scrape data from Yahoo! Finance because morons use a javascript routine to fetch data instead of using static pages. It is sad, I know.
 
-# In[54]:
+# In[13]:
+
+
+#all imports in one place 
+
+from bs4 import BeautifulSoup
+import requests
+import csv
+import numpy as np
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+#at this point, I am basically copy pasting from the instagram scraper I once
+#wrote, so a lot of these imports might turn out to be useless.
+import pandas as pd
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+
+import matplotlib.pyplot as plt
+
+
+# In[ ]:
 
 
 '''
@@ -20,115 +48,13 @@ better if you do not execute this cell.
 '''
 
 
-from bs4 import BeautifulSoup
-import requests
-import csv
 
-# file = open("profit_and_loss_BOB.csv", "w", newline='\n')
-# urls = ['/1', '/2', '/3']
-# data = dict()
-# write = csv.writer(file)
-# # headers = ['Interest / Discount on Advances / Bills', 'Income from Investments', 'Interest on Balance with RBI and Other Inter-Bank funds'] #trial, will extract these as well inshallah
-# for i in urls:
-#     r = requests.get('https://www.moneycontrol.com/financials/bankofbaroda/profit-lossVI/BOB{}#BOB'.format(i))
-#     soup = BeautifulSoup(r.text)
-#     z = soup.find_all('tr') #bingo we have the data. Now we just have to sanitize it.
-#     for i in z:
-#         if (i.text):
-#             tds = i.find_all('td')
-#             tds = [x.text for x in tds][:-1]
-#             header = tds[0]
-#             if header != '\xa0' and '' not in tds:
-# #                 print(tds)
-# #                 write.writerow(tds)
-#                 if(header in data):
-#                     data[header] += tds[1:]
-#                 else:
-#                     data[header] = tds[1:]
-# for i in data:
-#     j = [i] + data[i]
-#     write.writerow([i] + data[i])
+#uld be easy (I'll see lol), and I'll just graph it. I have no idea what to do with after that.
 
+# ## Part 2
+# This is where the actual magic (analysis) happens. None of this depends on the cells above. I mean yeah you'll need to run the cell with all the imports because that is a good practice, but please for the love of all things holy **do not** run the data collection cells. I have all the data I need.
 
-# Bingo! That was easy. Now I don't really have to save the dictionary and then go through the excruciating process of parsing JSONs everytime. Also, I guess I have enough data to do **fundamental** analysis now lol. 
-# 
-# 
-# Life update: I ended up saving the data in a csv file because I wanted to look at the beautiful excel sheet I created.
-
-# In[59]:
-
-
-# r = requests.get('https://finance.yahoo.com/quote/BANKBARODA.NS/history')
-# print(r.text)
-
-
-# # Okay, so Yahoo finance does not allow scraping, that's just sad. But nothing has ever deterred the greatest of the great, Rahul Jha. They don't call me Stalker Supreme for nothing. Time to call the cavalry.
-
-# # In[129]:
-
-
-# from selenium import webdriver
-# from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.support import expected_conditions as EC
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.wait import WebDriverWait
-# from selenium.webdriver.chrome.service import Service
-# from webdriver_manager.chrome import ChromeDriverManager
-
-# #at this point, I am basically copy pasting from the instagram scraper I once
-# #wrote, so a lot of these imports might turn out to be useless.
-
-
-# options = webdriver.ChromeOptions()
-# s = Service('/home/juggernautjha/Rahul/vision/Selenium/chromedriver')
-# driver = webdriver.Chrome(service = s, options = options)
-# driver.get('https://finance.yahoo.com/quote/BANKBARODA.NS/history?period1=1594857600&period2=1657929600&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true')
-# # last_height = driver.execute_script("return document.body.scrollHeight")
-# # while True:
-# #     # Scroll down to the bottom.
-# #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-# #     # Wait to load the page.
-# #     time.sleep(2)
-# #     print("scrolling\n")
-# #     # Calculate new scroll height and compare with last scroll height.
-# #     new_height = driver.execute_script("return document.body.scrollHeight")
-
-# #     if new_height == last_height:
-
-# #         break
-
-# #     last_height = new_height
-# import time
-# time.sleep(15)
-# import csv
-# file = open("price-history_.csv", "w")
-# write = csv.writer(file)
-# write.writerow(['Date', 'Open', 'High', 'Low', 'Close', 'Adj. Close', 'Volume'])
-# z = driver.find_elements(By.CSS_SELECTOR, "tr")
-# for i in z[-1::-1]:
-#     f = i.text.split(" ")
-#     try:
-#         eval(f[2])
-#         f = [f[0] + " " + f[1] + " " + f[2]] + f[3:]
-#     except:
-#         pass
-#     print(f)
-#     print(len(f))
-#     write.writerow(f)
-#     print("written")
-        
-# # print("Now exporting")
-# # with open("yahoo-finance-cached.html", 'w') as f:
-# #     f.write(driver.page_source)
-
-
-# # And we are done. Now that I have the page source, i do not need to torture my RAM and use selenium for scraping. Beautifulsoup would do just fine. Also, for the love of god and everything that is holy **DO NOT RUN** the cell above on anything with less than a few gigabytes of RAM.
-
-# # Now I have no idea what to do with EPS and PEG. I mean sure, I can calculate it but what next? I think the way to go is to scrape data for _every_ stock in NIFTY200 (not everything, just the PE ratio and the EPS) and then compare them. Hopefully my bank will come out on top. 
-# # Calculating the technical indicators should be easy (I'll see lol), and I'll just graph it. I have no idea what to do with after that.
-
-# # In[99]:
+# In[14]:
 
 
 #defining stuff
@@ -139,12 +65,9 @@ LOW = 3
 CLOSE = 4
 
 
-# In[175]:
+# In[15]:
 
 
-import pandas as pd
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
 hist = pd.read_csv('price-history_.csv')
 hist
 # fig2 = make_subplots(specs=[[{"secondary_y": True}]])
@@ -155,7 +78,7 @@ hist
 
 # Look at the beautiful graph. It is interactive. The only drawback is that is uses javascript for reasons known to no one. Not me. Now, to calculate technical indicators, I can either write functions that take a dataframe and then add a column, or something. Or I can go full consultant and use readymade tools. Let me do both. This will allow me to check if I am truly a top comder. 
 
-# In[186]:
+# In[16]:
 
 
 #Now,n day averages aren't defined for n-1 days. Yup. Pandas for the win
@@ -181,7 +104,7 @@ def graph(n):
 # 
 # McGinley Dynamic, on the other hand, is a uniquely strange problem. I am unable to figure out what M_{t-1} should be for t = 1. I mean if I set M_1 = Close, let us see what we get.
 
-# In[166]:
+# In[17]:
 
 
 rows = []
@@ -196,7 +119,7 @@ def populate_rows(): #loops on dataframes -> bad idea *retches*
 populate_rows()
 
 
-# In[196]:
+# In[18]:
 
 
 def mc_ginley(rows, N):
@@ -214,11 +137,12 @@ def graph_mc_ginley(rows, N):
     fig3 = make_subplots(specs=[[{"secondary_y": True}]])
     fig3.add_trace(go.Scatter(x=hist['Date'],y=hist['Close'],name='Price'),secondary_y=False)
     fig3.add_trace(go.Scatter(x=hist['Date'],y=hist['mc'],name='McGinley'),secondary_y=False)
+
     #     fig3.add_trace(go.Bar(x=hist['Date'],y=hist['Volume'],name='Volume'),secondary_y=True)
     fig3.show()
 
 
-# In[197]:
+# In[19]:
 
 
 #Comparison between moving average and mc_ginley
@@ -226,4 +150,178 @@ for I in range(10, 100, 10):
     print(I)
     graph(I)
     graph_mc_ginley(rows, I/2)
+
+
+# So, the mc_ginley metric (idk lol) lags a lot less than simple moving average. 
+# Now. to implement PGO (or PGI, whatever floats your boat) I'll have to first implement EMA. Which should be easy.
+
+# In[20]:
+
+
+def EMA(hist, n, col):
+    c = hist
+    c['ewm'] = c[col].ewm(span=n,min_periods=0,adjust=False,ignore_na=False).mean()
+    return c
+#works splendidly, cross checked from trading view.
+
+
+# In[21]:
+
+
+def wwma(values, n):
+    """
+     J. Welles Wilder's EMA 
+    """
+    return values.ewm(alpha=1/n, adjust=False).mean()
+
+
+# In[22]:
+
+
+def ATR(df, n=14):
+    data = df.copy()
+    high = data['High']
+    low = data['Low']
+    close = data['Close']
+    data['tr0'] = abs(high - low)
+    data['tr1'] = abs(high - close.shift())
+    data['tr2'] = abs(low - close.shift())
+    tr = data[['tr0', 'tr1', 'tr2']].max(axis=1)
+    atr = wwma(tr, n)
+    df['atr'] = atr
+    return df
+
+
+# In[23]:
+
+
+def PGO(n):
+    c = SMA(n)
+    #this gives us a dataframe with SMA. I do NOT want to code ever again.
+    c = ATR(c, n)
+    #this will give us a dataframe with average
+    c = EMA(c, n, 'atr')
+    c.dropna(inplace=True)
+    c['PGO'] = (c['Close'] - c['SMA'])/c['ewm']
+    return c
+#works splendidly. Checked.
+
+
+# Technical Indicators implemented. I have little to no idea what to do with them. Sure, I can graph them but what next? If only I knew how to trade....
+# 
+# Now for the _fundamental_ indicators, EPS is of no use by itself. So I'll modify the data fetching function and just extract the profit and EPS rows for banks. Then compare. Then sleep.
+
+# In[24]:
+
+
+BANKS_NIFTY_200 = {
+    "AUBANK" : "https://www.moneycontrol.com/financials/ausmallfinancebank/profit-lossVI/ASF02/{}#ASF02",
+    "AXISBANK" : "https://www.moneycontrol.com/financials/axisbank/profit-lossVI/AB16/{}#AB16",
+    "BANDHANBANK" : "https://www.moneycontrol.com/financials/bandhanbank/profit-lossVI/BB09/{}#BB09",
+    "BANKBARODA" : "https://www.moneycontrol.com/financials/bankofbaroda/profit-lossVI/BOB/{}#BOB",
+    "BANKINDIA" : "https://www.moneycontrol.com/financials/bankofindia/profit-lossVI/BOI/{}#BOI",
+    "CANBANK" : "https://www.moneycontrol.com/financials/canarabank/profit-lossVI/CB06/{}#CB06",
+    "HDFCBANK" : "https://www.moneycontrol.com/financials/hdfcbank/profit-lossVI/HDF01/{}#HDF01",
+    "ICICIBANK" : "https://www.moneycontrol.com/financials/icicibank/profit-lossVI/ICI02/{}#ICI02",
+    "INDIANB" : "https://www.moneycontrol.com/financials/indianbank/profit-lossVI/IB04/{}#IB04",
+    "INDUSINDBK" : "https://www.moneycontrol.com/financials/indusindbank/profit-lossVI/IIB/{}#IIB",
+    "KOTAKBANK" : "https://www.moneycontrol.com/financials/kotakmahindrabank/profit-lossVI/KMB/{}#KMB",
+    "PNB" : "https://www.moneycontrol.com/financials/punjabnationalbank/profit-lossVI/PNB05/{}#PNB05",
+    "SBIN" : "https://www.moneycontrol.com/financials/statebankofindia/profit-lossVI/SBI/{}#SBI",
+    "UNIONBANK" : "https://www.moneycontrol.com/financials/unionbankofindia/profit-lossVI/UBI01/{}#UBI01",
+    "YESBANK" : "https://www.moneycontrol.com/financials/yesbank/profit-lossVI/YB/{}#YB"
+}
+
+#god did this take a lot of time lololol
+#Also I missed IDFC and IDBI banks because they suck. Yes.
+
+
+# Now a simple scraper that would collate all data. We just need EPS and Profits over the years. Nothing More, and certainly nothing less.
+
+# In[25]:
+
+
+def scrape(url):
+    urls = ['/1', '/2', '/3']
+    data = dict()
+    r = requests.get(url)
+    soup_ = BeautifulSoup(r.text)
+    z = soup_.find_all("span", class_="span_price_wrap")
+#     print(z)
+    try:
+        data["price"] = eval(z[0].text)
+    except:
+        data["price"] = "NOT"
+    for i in urls:
+        r = requests.get(url.format(i))
+        soup = BeautifulSoup(r.text)
+        z = soup.find_all('tr') #bingo we have the data. Now we just have to sanitize it.
+        for i in z:
+            if (i.text):
+                tds = i.find_all('td')
+                tds = [x.text for x in tds][:-1]
+                for l in range(len(tds)):
+                    try:
+                        
+                        tds[l] = eval(tds[l].replace(",", ""))
+                    except:
+                        pass
+                header = tds[0]
+                if "Profit & Loss" in header:
+                    if(header in data):
+                            data[header] += tds[1:]
+                    else:
+                        data[header] = tds[1:]
+                if header in ["Net Profit / Loss for The Year", "Basic EPS (Rs.)", "Diluted EPS (Rs.)"]:
+                    if header != '\xa0' and '' not in tds:
+        #                 print(tds)
+        #                 write.writerow(tds)
+                        if(header in data):
+                            data[header] += tds[1:]
+                        else:
+                            data[header] = tds[1:]
+    return data
+all_banks = dict()
+for i in BANKS_NIFTY_200:
+    all_banks[i] =  scrape(BANKS_NIFTY_200[i])
+    
+
+
+# In[26]:
+
+
+for i in all_banks:
+    print(i)
+    for j in all_banks[i]:
+        print(j, all_banks[i][j])
+    print()
+
+
+# In[27]:
+
+
+PE_ratio = {i : all_banks[i]['price']/all_banks[i]['Basic EPS (Rs.)'][0] for i in all_banks} #slick, innit?
+EARNINGS_GROWTH = {i : (all_banks[i]['Basic EPS (Rs.)'][0] - all_banks[i]['Basic EPS (Rs.)'][1])/(all_banks[i]['Basic EPS (Rs.)'][1]) for i in all_banks}
+EARNINGS_GROWTH = {i: EARNINGS_GROWTH[i]*100 for i in EARNINGS_GROWTH}
+EPG = {i: PE_ratio[i]/EARNINGS_GROWTH[i] for i in PE_ratio}
+PEG = {}
+for i in EPG:
+    if EPG[i] >= 0:
+        PEG[i] = EPG[i] #because negative values are absurd
+
+        
+PE_R = {}
+for i in PE_ratio:
+    if PE_ratio[i] >= 0: #negative values absurd again. Loss making companies deserve love too.
+        PE_R[i] = PE_ratio[i]
+plt.plot([i for i in PEG], [PEG[i] for i in PEG])
+plt.xticks(rotation=45, ha='right')
+plt.title("PEG Ratio for Banking Scrips")
+plt.show()
+
+plt.plot([i for i in PE_R], [PE_R[i] for i in PE_R])
+plt.xticks(rotation = 45, ha = 'right')
+plt.title("P/E Ratio for Banking Scrips")
+plt.show()
+#BOB the most undervalued. Like Myself.
 
